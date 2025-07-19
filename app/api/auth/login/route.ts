@@ -14,6 +14,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
 
+    // First check if user exists and has a role
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { role: true }
+    });
+
     const response = await signIn("credentials", {
       email,
       password,
@@ -24,9 +30,11 @@ export async function POST(request: Request) {
       throw AUTH_ERRORS.INVALID_CREDENTIALS;
     }
 
+    // Return different response based on role status
     return NextResponse.json({ 
       message: "Login successful",
-      ok: true 
+      ok: true,
+      redirectTo: user?.role ? undefined : "/role-selection" // Redirect to role selection if no role
     });
 
   } catch (error) {
