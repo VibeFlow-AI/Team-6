@@ -1,7 +1,7 @@
 'use client';
 import SampleView from "@/components/sample-view";
 import { prisma } from "@/lib/prisma";
-import { Sample } from "@/lib/generated/prisma";
+// import { Sample } from "@/lib/generated/prisma";
 import { addSample, deleteSample } from "@/server/actions/sample";
 // import { BookOpen, Plus, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { BookOpen } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { InteractiveVerticalScrollbar } from "@/components/landing/interactive-vertical-scrollbar";
 export default function Home() {
   // const samples = await prisma.sample.findMany();
   // return <SampleView initialSamples={samples} />;
@@ -46,7 +47,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
+       {/* Hero Section */}
       <section className="px-4 lg:px-6 py-12 lg:py-20">
         <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -62,69 +63,8 @@ export default function Home() {
               </Button>
             </div>
 
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-4">
-                  <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=96&width=96"
-                      alt="Student"
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=80&width=80"
-                      alt="Student"
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4 pt-8">
-                  <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=112&width=112"
-                      alt="Student"
-                      width={112}
-                      height={112}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="w-18 h-18 lg:w-22 lg:h-22 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=88&width=88"
-                      alt="Student"
-                      width={88}
-                      height={88}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4 pt-4">
-                  <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl bg-gradient-to-br from-pink-400 to-pink-600 overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=96&width=96"
-                      alt="Student"
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=80&width=80"
-                      alt="Student"
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              </div>
+            <div className="relative h-[600px]">
+              <InteractiveVerticalScrollbar />
             </div>
           </div>
         </div>
