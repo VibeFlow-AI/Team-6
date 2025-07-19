@@ -80,14 +80,14 @@ export default function Home() {
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-5xl font-medium text-gray-900 mb-4">What's in it for Students?</h2>
-            <p className="text-lg text-black max-w-2xl mx-auto">
+            <p className="text-lg text-black max-w-7xl mx-auto">
               EduVibe is a student-mentor platform designed to personalize learning <br></br> journeys. 
               It connects students with mentors who offer guidance,<br></br> support, and practical industry insights.
             </p>
           </div>
 
           <div className="max-w-6xl mx-auto">
-            <div className="rounded-3xl p-8 bg-white shadow-sm">
+            <div className="rounded-3xl  bg-white shadow-sm">
               <AnimatedFeatureCards />
             </div>
           </div>
@@ -106,12 +106,12 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 max-w-7xl mx-auto">
             {/* Rahul Lavan Card */}
             <Card className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <span className="text-blue-600 font-semibold text-sm">RL</span>
                   </div>
                   <div>
@@ -167,7 +167,7 @@ export default function Home() {
             <Card className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                     <span className="text-orange-600 font-semibold text-sm">CR</span>
                   </div>
                   <div>
@@ -223,7 +223,7 @@ export default function Home() {
             <Card className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <span className="text-purple-600 font-semibold text-sm">MF</span>
                   </div>
                   <div>
