@@ -7,15 +7,14 @@ import Link from "next/link";
 
 export default function StudentDashboard() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Student Dashboard</h1>
-          <p className="text-gray-600">Welcome to your learning journey</p>
-        </div>
+    <div className="p-4 lg:p-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Student Dashboard</h1>
+        <p className="text-gray-600">Welcome to your learning journey</p>
+      </div>
 
-        {/* Quick Stats */}
+      {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
@@ -69,7 +68,7 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-4">Find qualified mentors in your subjects of interest</p>
-              <Link href="/dashboard/student/explore">
+              <Link href="/student/explore">
                 <Button className="w-full">Browse Mentors</Button>
               </Link>
             </CardContent>
@@ -84,7 +83,7 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-4">View your upcoming and past tutoring sessions</p>
-              <Link href="/dashboard/student/sessions">
+              <Link href="/student/sessions">
                 <Button className="w-full">View Sessions</Button>
               </Link>
             </CardContent>
@@ -199,7 +198,6 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
     </div>
   );
 } 
