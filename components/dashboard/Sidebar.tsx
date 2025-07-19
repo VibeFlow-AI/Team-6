@@ -133,7 +133,7 @@ export function Sidebar({ userRole }: SidebarProps) {
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <span className="font-semibold text-gray-900">
-              {userRole === "mentor" ? "Mentor Hub" : "Student Portal"}
+              {userRole === "mentor" ? "EduVibe" : "EduVibe"}
             </span>
           </div>
         )}
