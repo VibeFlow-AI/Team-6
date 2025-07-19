@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Github, Facebook, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getSession } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -20,12 +21,45 @@ export default function LoginPage() {
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: true,
-      callbackUrl: "/",
+      redirect: false,
     });
+    if (res?.error) {
+      setLoading(false);
+      setError("Invalid email or password.");
+      return;
+    }
+    // Wait for session to be available
+    let session = null;
+    for (let i = 0; i < 10; i++) {
+      session = await getSession();
+      if (session?.user?.role) break;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    if (!session?.user?.role) {
+      setLoading(false);
+      setError("Could not determine user role. Try again.");
+      return;
+    }
+    // Check profile existence
+    let profileRes;
+    if (session.user.role === "MENTOR") {
+      profileRes = await fetch("/api/mentors/profile", { method: "GET" });
+      if (profileRes.ok) {
+        router.push("/mentor");
+      } else {
+        router.push("/mentor/onboarding");
+      }
+    } else if (session.user.role === "STUDENT") {
+      profileRes = await fetch("/api/students/profile", { method: "GET" });
+      if (profileRes.ok) {
+        router.push("/student");
+      } else {
+        router.push("/student/onboarding");
+      }
+    } else {
+      router.push("/");
+    }
     setLoading(false);
-    if (res?.error) setError("Invalid email or password.");
-    else if (res?.ok) router.push("/");
   };
 
   const handleProvider = (provider: string) => {

@@ -72,22 +72,16 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      // If user has no role, force role selection after sign-in
-      if (!user.role) {
-        return "/role-selection";
-      }
+      // Allow sign in, middleware will handle role-based redirection
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // After sign-in, if role is not set, go to role selection
-      if (url.includes("/role-selection")) return url;
+      // Ensures that only relative URLs are used for redirects
       return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },
   pages: {
     signIn: "/login",
-    // Add custom role selection page
-    newUser: "/role-selection",
   },
   session: {
     strategy: "jwt",
