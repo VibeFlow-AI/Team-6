@@ -15,22 +15,34 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
 
-    // Basic validation
-    if (
-      !data.fullName ||
-      !data.age ||
-      !data.contactNumber ||
-      !data.educationLevel ||
-      !data.school ||
-      !data.subjects ||
-      !data.currentYear ||
-      !data.subjectSkills ||
-      !data.learningStyle
-    ) {
-      return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
+    // Debug: log the incoming data
+    console.log("Received onboarding data:", data);
+
+    // List of required fields
+    const requiredFields = [
+      "fullName",
+      "age",
+      "contactNumber",
+      "educationLevel",
+      "school",
+      "subjects",
+      "currentYear",
+      "subjectSkills",
+      "learningStyle",
+    ];
+
+    // Check for missing fields and log which one is missing
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        console.error(`Missing required field: ${field}`);
+        return NextResponse.json(
+          { success: false, error: `Missing required field: ${field}` },
+          { status: 400 }
+        );
+      }
     }
 
-    // For now, use a hardcoded user ID or skip user relation
+    // Use a mock userId for now (since no authentication)
     const mockUserId = "mock-user-id";
 
     // Save or update student profile
@@ -67,8 +79,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, student });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ success: false, error: "Failed to save onboarding data" }, { status: 500 });
+    console.error("Onboarding API error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to save onboarding data" },
+      { status: 500 }
+    );
   }
 }
 
@@ -162,7 +177,7 @@ export default function StudentOnboarding() {
       if (data.success) {
         setSuccess(true);
         // Redirect to student dashboard after successful onboarding
-        setTimeout(() => router.push("/dashboard/student"), 1500);
+        setTimeout(() => router.push("/student"), 1500);
       } else {
         setError(data.error || "Submission failed");
       }
