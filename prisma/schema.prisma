@@ -14,138 +14,115 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // MongoDB connection string in your .env
 }
 
-// ================================
-// ENUMS - Categorical Data Types
-// ================================
+/// ======================================================
+/// User Auth Model
+/// ======================================================
 
-enum UserRole {
+enum Role {
   STUDENT
   MENTOR
-  ADMIN
 }
 
-enum AccountStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING_VERIFICATION
+model User {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  email          String         @unique
+  password       String?        // Nullable for provider-only accounts
+  role           Role
+  provider       AuthProvider?  // "GOOGLE", "GITHUB", or null
+  providerId     String?        // Each provider's unique ID (sub, id, etc.)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  studentProfile StudentProfile?
+  mentorProfile  MentorProfile?
+  // sessions       Session[]      @relation("UserSessions")
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+  GITHUB
+  FACEBOOK
+}
+
+/// ======================================================
+/// Student Profile Section
+/// ======================================================
+
+model StudentProfile {
+  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String      @unique @db.ObjectId
+  fullName           String
+  age                Int
+  contactNumber      String
+  educationLevel     EducationLevel
+  school             String
+  subjectsOfInterest String[]
+  currentYear        Int
+
+  skillLevels        SkillLevel[]
+  learningStyle      LearningStyle
+  hasDisability      Boolean
+  disabilityDesc     String?
+
+  bookedSessions     Session[]   @relation("StudentSession")
+
+  user               User        @relation(fields: [userId], references: [id])
 }
 
 enum EducationLevel {
-  GRADE_3_5
-  GRADE_6_9
-  GRADE_10_11
+  GRADE_9
+  ORDINARY_LEVEL
   ADVANCED_LEVEL
-  UNDERGRADUATE
-  POSTGRADUATE
 }
 
-enum SkillLevel {
+type SkillLevel {
+  subject     String
+  level       SubjectLevel
+}
+
+enum SubjectLevel {
   BEGINNER
   INTERMEDIATE
   ADVANCED
-  EXPERT
 }
 
 enum LearningStyle {
   VISUAL
-  AUDITORY
-  KINESTHETIC
-  READING_WRITING
-  MULTIMODAL
+  HANDS_ON
+  THEORETICAL
+  MIXED
 }
 
-enum DisabilityType {
-  NONE
-  VISUAL_IMPAIRMENT
-  HEARING_IMPAIRMENT
-  LEARNING_DISABILITY
-  ADHD
-  DYSLEXIA
-  AUTISM_SPECTRUM
-  PHYSICAL_DISABILITY
-  COGNITIVE_DISABILITY
-  SPEECH_DISABILITY
-  OTHER
-}
+/// ======================================================
+/// Mentor Profile Schema
+/// ======================================================
 
-enum AccommodationType {
-  NONE
-  EXTENDED_TIME
-  SCREEN_READER
-  SIGN_LANGUAGE_INTERPRETER
-  ASSISTIVE_TECHNOLOGY
-  ALTERNATIVE_FORMATS
-  QUIET_ENVIRONMENT
-  FREQUENT_BREAKS
-  MODIFIED_SEATING
-  NOTE_TAKING_ASSISTANCE
-  OTHER
-}
+model MentorProfile {
+  id                     String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId                 String          @unique @db.ObjectId
+  fullName               String
+  age                    Int
+  contactNumber          String
+  preferredLanguage      Language
+  currentLocation        String
+  shortBio               String
+  professionalRole       String
 
-enum TeachingExperience {
-  NONE
-  ONE_TO_THREE_YEARS
-  THREE_TO_FIVE_YEARS
-  FIVE_TO_TEN_YEARS
-  MORE_THAN_TEN_YEARS
-}
+  subjectsToTeach        String[]
+  experienceYears        Experience
+  preferredStudentLevels StudentLevel[]
 
-enum SessionType {
-  ONE_ON_ONE
-  GROUP_SESSION
-  WORKSHOP
-  SEMINAR
-}
+  linkedIn               String
+  githubPortfolio        String?
+  profilePicture         String?
 
-enum SessionStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-  RESCHEDULED
-}
+  bookedSessions         Session[]       @relation("MentorSession")
 
-enum PaymentStatus {
-  PENDING
-  VERIFIED
-  REJECTED
-  REFUNDED
-}
-
-enum NotificationType {
-  SESSION_BOOKING
-  SESSION_REMINDER
-  PAYMENT_CONFIRMATION
-  MENTOR_MATCH
-  PROGRESS_UPDATE
-  SYSTEM_ANNOUNCEMENT
-  SESSION_CANCELLATION
-  MESSAGE_RECEIVED
-}
-
-enum NotificationPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum AvailabilityStatus {
-  AVAILABLE
-  BUSY
-  UNAVAILABLE
-  ON_BREAK
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-  PREFER_NOT_TO_SAY
+  user                   User            @relation(fields: [userId], references: [id])
 }
 
 enum Language {
@@ -155,652 +132,44 @@ enum Language {
   OTHER
 }
 
-enum TimeZone {
-  UTC_PLUS_5_30  // Sri Lanka Time
-  UTC_PLUS_0     // GMT
-  UTC_PLUS_1     // CET
-  UTC_MINUS_5    // EST
-  UTC_MINUS_8    // PST
-  OTHER
+enum Experience {
+  NONE
+  YEARS_1_3
+  YEARS_3_5
+  YEARS_5_PLUS
 }
 
-// ================================
-// EMBEDDED TYPES - For Document Structure
-// ================================
-
-type ContactInfo {
-  phone           String
-  alternatePhone  String?
-  whatsapp        String?
-  telegram        String?
+enum StudentLevel {
+  GRADE_3_5
+  GRADE_6_9
+  GRADE_10_11
+  ADVANCED_LEVEL
 }
 
-type Address {
-  street    String
-  city      String
-  state     String
-  country   String   @default("Sri Lanka")
-  zipCode   String?
-  timezone  TimeZone @default(UTC_PLUS_5_30)
-}
-
-type EmergencyContact {
-  name         String
-  relationship String
-  phone        String
-  email        String?
-}
-
-type SubjectSkill {
-  subject     String
-  skillLevel  SkillLevel
-  currentGrade String?
-  targetGrade  String?
-  priority    Int        @default(1)
-}
-
-type WeeklyAvailability {
-  dayOfWeek   String  // "MONDAY", "TUESDAY", etc.
-  startTime   String  // "09:00"
-  endTime     String  // "17:00"
-  isAvailable Boolean
-}
-
-type SessionFeedback {
-  rating                Int     // 1-5 stars
-  communicationRating   Int     // 1-5 stars  
-  preparednessRating    Int     // 1-5 stars
-  knowledgeRating       Int     // 1-5 stars
-  helpfulnessRating     Int     // 1-5 stars
-  comments              String?
-  wouldRecommend        Boolean
-  tags                  String[]
-}
-
-type ProgressMetrics {
-  overallProgress       Float   @default(0.0) // 0-100
-  subjectProgress       Json    // {"Math": 75, "Physics": 60}
-  goalsAchieved         Int     @default(0)
-  totalGoals           Int     @default(0)
-  completedSessions    Int     @default(0)
-  averageRating        Float   @default(0.0)
-  streakDays           Int     @default(0)
-  lastUpdated          DateTime @default(now())
-}
-
-type MentorPerformance {
-  totalStudentsMentored    Int     @default(0)
-  activeStudents          Int     @default(0)
-  completedSessions       Int     @default(0)
-  averageRating           Float   @default(0.0)
-  responseRate            Float   @default(0.0) // Response rate to messages
-  completionRate          Float   @default(0.0) // Session completion rate
-  retentionRate           Float   @default(0.0) // Student retention rate
-  totalEarnings           Float   @default(0.0)
-  onTimePercentage        Float   @default(0.0)
-  lastUpdated             DateTime @default(now())
-}
-
-type LearningObjectives {
-  shortTermGoals    String[]
-  longTermGoals     String[]
-  expectedOutcomes  String[]
-  successMetrics    String[]
-}
-
-type ProfessionalBackground {
-  currentPosition   String?
-  company           String?
-  industry          String?
-  totalExperience   String?
-  professionalTitle String?
-}
-
-type SocialLinks {
-  linkedIn    String?
-  github      String?
-  portfolio   String?
-  website     String?
-  twitter     String?
-  academic    String?
-}
-
-type PaymentDetails {
-  bankName        String?
-  accountNumber   String?
-  accountHolderName String?
-  branchCode      String?
-  swiftCode       String?
-  isVerified      Boolean @default(false)
-}
-
-// ================================
-// MAIN MODELS - Core Entities
-// ================================
-
-model User {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  email           String        @unique
-  passwordHash    String?       // For credential-based auth
-  role            UserRole
-  status          AccountStatus @default(PENDING_VERIFICATION)
-  isEmailVerified Boolean       @default(false)
-  isPhoneVerified Boolean       @default(false)
-  
-  // Profile Information
-  fullName        String
-  displayName     String?
-  dateOfBirth     DateTime?
-  age             Int?
-  gender          Gender?
-  profilePicture  String?       // URL to profile image
-  bio             String?
-  
-  // Contact & Location
-  contactInfo     ContactInfo?
-  address         Address?
-  preferredLanguage Language    @default(ENGLISH)
-  
-  // Authentication & Security
-  emailVerificationToken  String?
-  phoneVerificationToken  String?
-  passwordResetToken      String?
-  passwordResetExpires    DateTime?
-  lastLoginAt             DateTime?
-  failedLoginAttempts     Int      @default(0)
-  lockedUntil             DateTime?
-  
-  // Relationships
-  studentProfile     StudentProfile?
-  mentorProfile      MentorProfile?
-  sentMessages       Message[]           @relation("MessageSender")
-  receivedMessages   Message[]           @relation("MessageReceiver")
-  notifications      Notification[]
-  studentSessions    Session[]           @relation("StudentSessions")
-  mentorSessions     Session[]           @relation("MentorSessions")
-  sentReviews        Review[]            @relation("ReviewAuthor")
-  receivedReviews    Review[]            @relation("ReviewRecipient")
-  progressReports    ProgressReport[]
-  
-  // Audit fields
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  lastActiveAt       DateTime  @default(now())
-  
-  @@map("users")
-}
-
-model StudentProfile {
-  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
-  userId                  String            @unique @db.ObjectId
-  
-  // Academic Information
-  currentEducationLevel   EducationLevel
-  schoolUniversity        String
-  currentYear             Int?              // Current academic year
-  expectedGraduation      DateTime?
-  currentGPA              Float?
-  major                   String?
-  minor                   String?
-  
-  // Learning Profile
-  subjectsOfInterest      String[]
-  subjectSkills           SubjectSkill[]
-  learningStyles          LearningStyle[]
-  motivationLevel         Int               @default(5) // 1-10 scale
-  studyHoursPerWeek      Int?
-  
-  // Accessibility & Support
-  hasLearningDisabilities Boolean           @default(false)
-  disabilityTypes         DisabilityType[]
-  accommodationNeeds      AccommodationType[]
-  accommodationDetails    String?
-  assistiveTechRequirements String?
-  
-  // Background Information
-  isFirstGeneration       Boolean           @default(false)
-  householdIncome         String?           // For scholarship eligibility
-  emergencyContacts       EmergencyContact[]
-  
-  // Learning History
-  previousTutoringExperience Boolean        @default(false)
-  onlineLearningComfort   SkillLevel        @default(BEGINNER)
-  technologyProficiency   SkillLevel        @default(INTERMEDIATE)
-  internetSpeedMbps       Int?              // For session quality
-  preferredDevices        String[]          // ["laptop", "tablet", "mobile"]
-  
-  // Goals & Progress
-  learningObjectives      LearningObjectives?
-  progressMetrics         ProgressMetrics?
-  
-  // Matching Preferences
-  preferredMentorGender   Gender?
-  preferredMentorAge      String?           // "20-30", "30-40", etc.
-  preferredSessionTimes   String[]          // ["morning", "afternoon", "evening"]
-  maxBudgetPerSession     Float?
-  
-  // Session History
-  totalSessionsBooked     Int               @default(0)
-  totalSessionsCompleted  Int               @default(0)
-  totalSessionsCancelled  Int               @default(0)
-  averageSessionRating    Float             @default(0.0)
-  
-  // Relationships
-  user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookedSessions          Session[]         @relation("StudentSessions")
-  progressReports         ProgressReport[]
-  
-  // Audit fields
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
-  lastProfileUpdate       DateTime          @default(now())
-  onboardingCompleted     Boolean           @default(false)
-  onboardingStep          Int               @default(1)
-  
-  @@map("student_profiles")
-}
-
-model MentorProfile {
-  id                      String                @id @default(auto()) @map("_id") @db.ObjectId
-  userId                  String                @unique @db.ObjectId
-  
-  // Professional Information
-  professionalBackground  ProfessionalBackground?
-  highestEducation        EducationLevel
-  university              String
-  degree                  String
-  graduationYear          Int
-  certifications          String[]
-  
-  // Teaching Expertise
-  subjectsToTeach         String[]
-  subjectExpertise        Json                  // {"Mathematics": "EXPERT", "Physics": "ADVANCED"}
-  teachingExperience      TeachingExperience
-  mentoringSinceYear      Int?
-  specializations         String[]
-  researchInterests       String[]
-  
-  // Teaching Preferences
-  preferredEducationLevels EducationLevel[]
-  preferredSessionTypes    SessionType[]
-  maxStudentsPerSession    Int                   @default(1)
-  preferredStudentAge      String?               // "15-18", "18-25", etc.
-  teachingMethodologies    String[]
-  
-  // Availability & Scheduling
-  weeklyAvailability      WeeklyAvailability[]
-  specificDateAvailability Json                 // {date: available_slots}
-  maxSessionsPerDay       Int                   @default(4)
-  maxSessionsPerWeek      Int                   @default(20)
-  advanceBookingDays      Int                   @default(7)
-  currentStatus           AvailabilityStatus    @default(AVAILABLE)
-  statusReason            String?
-  
-  // Verification & Trust
-  isIdentityVerified      Boolean               @default(false)
-  isBackgroundVerified    Boolean               @default(false)
-  isEducationVerified     Boolean               @default(false)
-  verificationDocuments   String[]              // URLs to uploaded documents
-  verifiedAt              DateTime?
-  verifiedBy              String?               // Admin user ID
-  
-  // Professional Links & Portfolio
-  socialLinks             SocialLinks?
-  profileVideoUrl         String?               // Introduction video
-  teachingSamples         String[]              // URLs to teaching materials
-  
-  // Performance Metrics
-  mentorPerformance       MentorPerformance?
-  
-  // Pricing & Financial
-  hourlyRate              Float?
-  currency                String                @default("LKR")
-  paymentMethods          String[]              // ["bank_transfer", "paypal", "mobile_money"]
-  paymentDetails          PaymentDetails?
-  taxInformation          String?
-  
-  // Platform Settings
-  acceptsNewStudents      Boolean               @default(true)
-  requiresApproval        Boolean               @default(false) // For session booking
-  autoAcceptBookings      Boolean               @default(false)
-  responseTimeHours       Int                   @default(24)
-  
-  // Session Management
-  totalSessionsConducted  Int                   @default(0)
-  totalStudentsMentored   Int                   @default(0)
-  activeStudents          Int                   @default(0)
-  averageRating           Float                 @default(0.0)
-  totalEarnings           Float                 @default(0.0)
-  
-  // Relationships
-  user                    User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mentorSessions          Session[]             @relation("MentorSessions")
-  progressReports         ProgressReport[]
-  availability            Availability[]
-  
-  // Audit fields
-  createdAt               DateTime              @default(now())
-  updatedAt               DateTime              @updatedAt
-  lastActiveAt            DateTime              @default(now())
-  onboardingCompleted     Boolean               @default(false)
-  onboardingStep          Int                   @default(1)
-  approvedAt              DateTime?
-  approvedBy              String?               // Admin user ID
-  
-  @@map("mentor_profiles")
-}
+/// ======================================================
+/// Mentor Session Booking Schema
+/// ======================================================
 
 model Session {
-  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
-  
-  // Session Basic Information
-  title                   String
-  description             String?
-  type                    SessionType       @default(ONE_ON_ONE)
-  subject                 String
-  topics                  String[]
-  difficulty              SkillLevel        @default(INTERMEDIATE)
-  
-  // Participants
-  studentId               String            @db.ObjectId
-  mentorId                String            @db.ObjectId
-  maxParticipants         Int               @default(1)
-  currentParticipants     Int               @default(1)
-  
-  // Scheduling
-  scheduledAt             DateTime
-  duration                Int               @default(120) // Duration in minutes
-  timeZone                TimeZone          @default(UTC_PLUS_5_30)
-  actualStartTime         DateTime?
-  actualEndTime           DateTime?
-  
-  // Status Management
-  status                  SessionStatus     @default(PENDING)
-  isRecurring             Boolean           @default(false)
-  recurringPattern        String?           // "weekly", "bi-weekly", etc.
-  parentSessionId         String?           @db.ObjectId // For recurring sessions
-  
-  // Meeting Information
-  meetingLink             String?           // Zoom/Meet link
-  meetingPassword         String?
-  meetingId               String?
-  recordingUrl            String?
-  
-  // Learning Management
-  learningObjectives      LearningObjectives?
-  preparationNotes        String?
-  studyMaterials          String[]          // URLs to materials
-  homework                String?
-  nextSessionPlanning     String?
-  
-  // Session Outcome
-  sessionSummary          String?
-  progressAssessment      String?
-  studentStrengths        String[]
-  improvementAreas        String[]
-  recommendedActions      String[]
-  
-  // Technical Information
-  platformUsed            String            @default("browser") // "zoom", "meet", "teams", etc.
-  technicalIssues         String[]
-  connectionQuality       Int?              // 1-5 rating
-  audioQuality           Int?              // 1-5 rating
-  videoQuality           Int?              // 1-5 rating
-  
-  // Payment Information
-  cost                    Float
-  currency                String            @default("LKR")
-  paymentStatus           PaymentStatus     @default(PENDING)
-  bankSlipUrl            String?           // URL to uploaded bank slip
-  paymentVerifiedAt      DateTime?
-  paymentVerifiedBy      String?           // Admin user ID
-  refundAmount           Float?
-  refundReason           String?
-  
-  // Feedback & Review
-  studentFeedback         SessionFeedback?
-  mentorFeedback          SessionFeedback?
-  sessionRating          Float?            // Overall session rating
-  
-  // Cancellation & Rescheduling
-  cancellationReason      String?
-  cancelledBy            String?           // user_id who cancelled
-  cancelledAt            DateTime?
-  rescheduledFrom        DateTime?
-  rescheduledBy          String?           // user_id who rescheduled
-  reschedulingReason     String?
-  
-  // Reminders & Notifications
-  remindersSent          String[]          // ["24h", "1h", etc.]
-  lastReminderSent       DateTime?
-  
-  // Relationships
-  student                User              @relation("StudentSessions", fields: [studentId], references: [id])
-  mentor                 User              @relation("MentorSessions", fields: [mentorId], references: [id])
-  messages               Message[]
-  reviews                Review[]
-  notifications          Notification[]
-  
-  // Audit fields
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
-  bookedAt               DateTime          @default(now())
-  
-  @@map("sessions")
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  studentId      String         @db.ObjectId
+  mentorId       String         @db.ObjectId
+  // bookedByUserId String         @db.ObjectId? // Optional cross-reference
+
+  mentor         MentorProfile  @relation("MentorSession", fields: [mentorId], references: [id])
+  student        StudentProfile @relation("StudentSession", fields: [studentId], references: [id])
+  // bookedByUser   User?          @relation("UserSessions", fields: [bookedByUserId], references: [id])
+
+  date           DateTime
+  duration       Int            // Always 2 hours by default
+  status         BookingStatus
+  bankSlip       String?
+  bookedAt       DateTime       @default(now())
 }
 
-model Availability {
-  id              String              @id @default(auto()) @map("_id") @db.ObjectId
-  mentorId        String              @db.ObjectId
-  
-  // Time Information
-  date            DateTime            // Specific date
-  startTime       DateTime            // Start time with timezone
-  endTime         DateTime            // End time with timezone
-  timeZone        TimeZone            @default(UTC_PLUS_5_30)
-  
-  // Availability Status
-  isAvailable     Boolean             @default(true)
-  isBooked        Boolean             @default(false)
-  isRecurring     Boolean             @default(false)
-  
-  // Recurring Information
-  recurringPattern String?            // "weekly", "daily", etc.
-  recurringEndDate DateTime?
-  dayOfWeek       String?             // "MONDAY", "TUESDAY", etc.
-  
-  // Session Information
-  maxBookings     Int                 @default(1)
-  currentBookings Int                 @default(0)
-  
-  // Notes
-  notes           String?
-  unavailableReason String?
-  
-  // Relationships
-  mentor          MentorProfile       @relation(fields: [mentorId], references: [id], onDelete: Cascade)
-  
-  // Audit fields
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  
-  @@map("availability")
-}
-
-model Review {
-  id                  String        @id @default(auto()) @map("_id") @db.ObjectId
-  
-  // Review Information
-  rating              Int           // Overall rating 1-5
-  title               String?
-  content             String
-  sessionId           String        @db.ObjectId
-  
-  // Specific Ratings
-  communicationRating Int?          // 1-5 stars
-  preparednessRating  Int?          // 1-5 stars  
-  knowledgeRating     Int?          // 1-5 stars
-  helpfulnessRating   Int?          // 1-5 stars
-  
-  // Review Metadata
-  isRecommended       Boolean       @default(true)
-  tags                String[]      // ["patient", "knowledgeable", "punctual"]
-  isVerified          Boolean       @default(false)
-  isPublic            Boolean       @default(true)
-  
-  // Response
-  response            String?       // Reviewer's response
-  responseAt          DateTime?
-  
-  // Participants
-  authorId            String        @db.ObjectId  // Who wrote the review
-  recipientId         String        @db.ObjectId  // Who received the review
-  
-  // Relationships
-  author              User          @relation("ReviewAuthor", fields: [authorId], references: [id])
-  recipient           User          @relation("ReviewRecipient", fields: [recipientId], references: [id])
-  session             Session       @relation(fields: [sessionId], references: [id])
-  
-  // Audit fields
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  
-  @@map("reviews")
-}
-
-model Message {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  
-  // Message Content
-  content         String
-  messageType     String            @default("text") // "text", "image", "file", "audio"
-  attachmentUrls  String[]          // URLs to attachments
-  
-  // Participants
-  senderId        String            @db.ObjectId
-  receiverId      String            @db.ObjectId
-  sessionId       String?           @db.ObjectId // Optional session context
-  
-  // Message Status
-  isRead          Boolean           @default(false)
-  readAt          DateTime?
-  isDelivered     Boolean           @default(false)
-  deliveredAt     DateTime?
-  
-  // Message Management
-  isDeleted       Boolean           @default(false)
-  deletedAt       DateTime?
-  deletedBy       String?           @db.ObjectId
-  
-  // Thread Information
-  replyToId       String?           @db.ObjectId // For threaded conversations
-  threadId        String?           @db.ObjectId // Conversation thread
-  
-  // Relationships
-  sender          User              @relation("MessageSender", fields: [senderId], references: [id])
-  receiver        User              @relation("MessageReceiver", fields: [receiverId], references: [id])
-  session         Session?          @relation(fields: [sessionId], references: [id])
-  
-  // Audit fields
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  @@map("messages")
-}
-
-model Notification {
-  id              String              @id @default(auto()) @map("_id") @db.ObjectId
-  
-  // Notification Content
-  title           String
-  message         String
-  type            NotificationType
-  priority        NotificationPriority @default(MEDIUM)
-  
-  // Recipient
-  userId          String              @db.ObjectId
-  
-  // Related Entities
-  sessionId       String?             @db.ObjectId
-  relatedEntityId String?             @db.ObjectId // Generic reference to any entity
-  relatedEntityType String?           // "session", "message", "review", etc.
-  
-  // Notification Status
-  isRead          Boolean             @default(false)
-  readAt          DateTime?
-  isActionRequired Boolean            @default(false)
-  actionTaken     Boolean             @default(false)
-  actionTakenAt   DateTime?
-  
-  // Delivery
-  isDelivered     Boolean             @default(false)
-  deliveredAt     DateTime?
-  deliveryMethod  String[]            // ["email", "sms", "push", "in_app"]
-  
-  // Scheduling
-  scheduledFor    DateTime?           // For scheduled notifications
-  expiresAt       DateTime?           // Auto-delete after this date
-  
-  // Relationships
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session         Session?            @relation(fields: [sessionId], references: [id])
-  
-  // Audit fields
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  
-  @@map("notifications")
-}
-
-model ProgressReport {
-  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
-  
-  // Report Information
-  title                   String
-  reportPeriod            String            // "Monthly", "Quarterly", etc.
-  periodStart             DateTime
-  periodEnd               DateTime
-  
-  // Participants
-  studentId               String            @db.ObjectId
-  mentorId                String            @db.ObjectId
-  
-  // Progress Metrics
-  overallProgress         Float             // 0-100 percentage
-  subjectWiseProgress     Json              // {"Math": 85, "Physics": 70}
-  
-  // Performance Indicators
-  sessionsAttended        Int
-  totalSessionsScheduled  Int
-  averageSessionRating    Float
-  homeworkCompletion      Float             // 0-100 percentage
-  
-  // Qualitative Assessment
-  strengths               String[]
-  improvementAreas        String[]
-  goalsAchieved           String[]
-  upcomingGoals          String[]
-  mentorRecommendations   String[]
-  
-  // Engagement Metrics
-  participationLevel      Int               // 1-10 scale
-  motivationLevel         Int               // 1-10 scale
-  communicationQuality    Int               // 1-10 scale
-  punctuality             Int               // 1-10 scale
-  
-  // Status
-  isPublished             Boolean           @default(false)
-  publishedAt             DateTime?
-  isSharedWithParents     Boolean           @default(false)
-  
-  // Relationships
-  student                 User              @relation(fields: [studentId], references: [id])
-  mentor                  MentorProfile     @relation(fields: [mentorId], references: [id])
-  
-  // Audit fields
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
-  generatedBy             String?           @db.ObjectId // Who generated the report
-  
-  @@map("progress_reports")
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELED
 }
