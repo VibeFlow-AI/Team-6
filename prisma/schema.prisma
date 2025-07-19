@@ -68,8 +68,7 @@ model StudentProfile {
   hasDisability      Boolean
   disabilityDesc     String?
 
-  bookedSessions     Session[]   @relation("StudentSession")
-
+  bookings          SessionBooking[]
   user               User        @relation(fields: [userId], references: [id])
 }
 
@@ -120,8 +119,7 @@ model MentorProfile {
   githubPortfolio        String?
   profilePicture         String?
 
-  bookedSessions         Session[]       @relation("MentorSession")
-
+  sessionSchedules       SessionSchedule[]
   user                   User            @relation(fields: [userId], references: [id])
 }
 
@@ -150,26 +148,89 @@ enum StudentLevel {
 /// Mentor Session Booking Schema
 /// ======================================================
 
-model Session {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  studentId      String         @db.ObjectId
-  mentorId       String         @db.ObjectId
-  // bookedByUserId String         @db.ObjectId? // Optional cross-reference
+model SessionSchedule {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  mentorId    String        @db.ObjectId
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id])
+  title       String
+  description String?
+  duration    Int           // Duration in minutes
+  price       Float
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  mentor         MentorProfile  @relation("MentorSession", fields: [mentorId], references: [id])
-  student        StudentProfile @relation("StudentSession", fields: [studentId], references: [id])
-  // bookedByUser   User?          @relation("UserSessions", fields: [bookedByUserId], references: [id])
+  timeSlots   TimeSlot[]
+}
 
-  date           DateTime
-  duration       Int            // Always 2 hours by default
-  status         BookingStatus
-  bankSlip       String?
-  bookedAt       DateTime       @default(now())
+model TimeSlot {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  sessionScheduleId String          @db.ObjectId
+  sessionSchedule   SessionSchedule @relation(fields: [sessionScheduleId], references: [id])
+  startTime         DateTime
+  endTime           DateTime
+  isBooked         Boolean         @default(false)
+  
+  booking          SessionBooking?
+}
+
+model SessionBooking {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  timeSlotId      String          @unique @db.ObjectId
+  timeSlot        TimeSlot        @relation(fields: [timeSlotId], references: [id])
+  studentId       String          @db.ObjectId
+  student         StudentProfile  @relation(fields: [studentId], references: [id])
+  status          BookingStatus   @default(PENDING_PAYMENT)
+  meetingLink     String?
+  paymentStatus   PaymentStatus   @default(PENDING)
+  paymentId       String?         @unique @db.ObjectId
+  payment         Payment?        @relation(fields: [paymentId], references: [id])
+  mentorNotes     String?         // Mentor's notes/feedback
+  rejectionReason String?         // If mentor rejects the booking
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Payment {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  amount          Float
+  currency        String          @default("LKR")
+  status          PaymentStatus
+  paymentMethod   PaymentMethod
+  transactionId   String?
+  bankSlipImage   String?        // URL to uploaded bank slip image
+  verifiedAt      DateTime?      // When the payment was verified
+  verifiedBy      String?        @db.ObjectId // Admin/Mentor who verified the payment
+  booking         SessionBooking?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 enum BookingStatus {
-  PENDING
-  CONFIRMED
+  PENDING_PAYMENT
+  PENDING_MENTOR_APPROVAL
+  APPROVED
+  REJECTED
   COMPLETED
-  CANCELED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  ONLINE_PAYMENT
+}
+
+// Add compatibility score type
+type CompatibilityScore {
+  score        Float
+  matchReason  String
 }
