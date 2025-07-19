@@ -17,6 +17,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { InteractiveVerticalScrollbar } from "@/components/landing/interactive-vertical-scrollbar";
 import RoleSelectionModal from "@/components/login/RoleSelectionModal";
+import { AnimatedFeatureCards } from "@/components/landing/animated-feature-cards";
 export default function Home() {
   // const samples = await prisma.sample.findMany();
   // return <SampleView initialSamples={samples} />;
@@ -74,88 +75,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* What's in it for Students Section */}
+            {/* What's in it for Students Section */}
       <section className="px-4 lg:px-6 py-16 bg-gray-50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">What's in it for Students?</h2>
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto">
-              EduVibe is a student-mentor platform designed to personalize learning journeys. It connects students with
-              mentors who offer guidance, support, and practical industry insights.
+            <h2 className="text-3xl lg:text-5xl font-medium text-gray-900 mb-4">What's in it for Students?</h2>
+            <p className="text-lg text-black max-w-2xl mx-auto">
+              EduVibe is a student-mentor platform designed to personalize learning <br></br> journeys. 
+              It connects students with mentors who offer guidance,<br></br> support, and practical industry insights.
             </p>
           </div>
 
           <div className="max-w-6xl mx-auto">
-            <div className="border-4 border-purple-400 rounded-3xl p-8 bg-white">
-              <div className="grid lg:grid-cols-4 gap-8">
-                {/* Personalized Learning */}
-                <div className="lg:col-span-1 space-y-4">
-                  <div className="aspect-square rounded-2xl overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=300&width=300"
-                      alt="Students collaborating"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Personalized Learning</h3>
-                    <p className="text-gray-600 text-sm">
-                      We tailor the mentorship experience to fit each student's unique goals, learning style, and pace
-                      making every session impactful.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Real Mentors, Real Guidance */}
-                <div className="space-y-4">
-                  <div className="aspect-square rounded-2xl overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=300&width=300"
-                      alt="Professional mentor"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Real Mentors, Real Guidance</h3>
-                  </div>
-                </div>
-
-                {/* Growth & Career Readiness */}
-                <div className="space-y-4">
-                  <div className="aspect-square rounded-2xl overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=300&width=300"
-                      alt="Career growth"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Growth & Career Readiness</h3>
-                  </div>
-                </div>
-
-                {/* Insights-Driven Support */}
-                <div className="space-y-4">
-                  <div className="aspect-square rounded-2xl overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=300&width=300"
-                      alt="Data insights"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Insights-Driven Support</h3>
-                  </div>
-                </div>
-              </div>
+            <div className="rounded-3xl p-8 bg-white shadow-sm">
+              <AnimatedFeatureCards />
             </div>
           </div>
         </div>
@@ -165,8 +98,8 @@ export default function Home() {
       <section className="px-4 lg:px-6 py-16 bg-gradient-to-b from-purple-50 to-blue-50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Session Highlights – Trending Now</h2>
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto">
+            <h2 className="text-3xl lg:text-5xl font-medium text-gray-900 mb-4">Session Highlights – Trending Now</h2>
+            <p className="text-lg text-black max-w-2xl mx-auto">
               Join the sessions students are raving about. These expert-led, high-impact sessions are designed to help
               you unlock your full potential whether you're polishing your resume, mapping out your career path, or
               getting ready to ace technical interviews.
@@ -346,7 +279,7 @@ export default function Home() {
           <div className="text-center">
             <Button
               variant="outline"
-              className="px-8 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+              className="px-8 py-2 border-black text-black hover:bg-gray-50 bg-transparent"
             >
               Load More Sessions
             </Button>
@@ -355,7 +288,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white px-4 lg:px-6 py-12">
+      {/* <footer className="bg-gray-900 text-white px-4 lg:px-6 py-12">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
@@ -453,7 +386,7 @@ export default function Home() {
             <p>&copy; 2024 EduVibe. All rights reserved.</p>
           </div>
         </div>
-      </footer>
+      </footer> */}
       {isActiveGetStarted && (<RoleSelectionModal setIsActiveGetStarted={setIsActiveGetStarted} isActiveGetStarted={isActiveGetStarted} />)}
     </div>
   )

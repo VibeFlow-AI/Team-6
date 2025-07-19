@@ -104,46 +104,13 @@ export default function MentorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Mobile Navigation */}
-        <div className="sm:hidden bg-white border-b border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-800">
-              Mentor Dashboard
-            </h1>
-            <div className="flex items-center space-x-3">
-              <button className="p-2 rounded-lg bg-gray-100">
-                <Home size={18} className="text-gray-600" />
-              </button>
-              <button className="p-2 rounded-lg">
-                <Edit size={18} className="text-gray-400" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* <Navbar /> */}
-
-        <div className="flex">
-          {/* Sidebar */}
-          {/* <div className="hidden sm:flex w-16 bg-white border-r border-gray-200 flex-col items-center py-6 space-y-6">
-          <button className="p-3 rounded-lg bg-gray-100">
-            <Home size={20} className="text-gray-600" />
-          </button>
-          <button className="p-3 rounded-lg">
-            <Edit size={20} className="text-gray-400" />
-          </button>
-        </div> */}
-
-          {/* Main Content */}
-          <div className="flex-1 p-4 lg:p-6">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Mentor Dashboard
-              </h1>
-              <p className="text-gray-600">Welcome to your mentoring journey</p>
-            </div>
+    <div className="p-4 lg:p-6 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Mentor Dashboard
+        </h1>
+        <p className="text-gray-600">Welcome to your mentoring journey</p>
+      </div>
             {/* Analytics Section */}
             <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
               {/* Age Distribution Pie Chart */}
@@ -360,18 +327,6 @@ export default function MentorDashboard() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        </div>
-
-        {/* Profile Picture in Bottom Left */}
-        <div className="fixed bottom-6 left-4 sm:left-6">
-          <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden border-2 border-white shadow-lg flex items-center justify-center">
-            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-              M
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
