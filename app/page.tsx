@@ -16,9 +16,13 @@ import { BookOpen } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { InteractiveVerticalScrollbar } from "@/components/landing/interactive-vertical-scrollbar";
+import RoleSelectionModal from "@/components/login/RoleSelectionModal";
 export default function Home() {
   // const samples = await prisma.sample.findMany();
   // return <SampleView initialSamples={samples} />;
+
+  const [isActiveGetStarted, setIsActiveGetStarted] = useState(false);
+
   return (
          <div className="min-h-screen bg-white">
       {/* Header */}
@@ -43,7 +47,7 @@ export default function Home() {
             </Link>
           </nav>
 
-          <Button className="bg-black hover:bg-purple-700 text-white px-6">Get Started</Button>
+          <Button onClick={() => setIsActiveGetStarted(true)} className="bg-black hover:bg-purple-700 text-white px-6">Get Started</Button>
         </div>
       </header>
 
@@ -450,6 +454,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      {isActiveGetStarted && (<RoleSelectionModal setIsActiveGetStarted={setIsActiveGetStarted} isActiveGetStarted={isActiveGetStarted} />)}
     </div>
   )
 }
