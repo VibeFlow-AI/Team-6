@@ -7,14 +7,14 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/", "/auth/login", "/auth/register", "/auth/role-selection"];
+  const publicRoutes = ["/", "/login", "/register", "/role-selection"];
   if (publicRoutes.includes(pathname)) {
     return NextResponse.next();
   }
 
   // Check if user is authenticated
   if (!token) {
-    const loginUrl = new URL("/auth/login", request.url);
+    const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }

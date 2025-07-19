@@ -30,7 +30,7 @@ model User {
   id             String         @id @default(auto()) @map("_id") @db.ObjectId
   email          String         @unique
   password       String?        // Nullable for provider-only accounts
-  role           Role
+  role           Role?
   provider       AuthProvider?  // "GOOGLE", "GITHUB", or null
   providerId     String?        // Each provider's unique ID (sub, id, etc.)
   createdAt      DateTime       @default(now())
