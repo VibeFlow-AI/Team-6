@@ -71,7 +71,7 @@ export default function MentorOnboardingPage() {
           ))}
         </div>
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="bg-white rounded-2xl shadow-2xl">
           {step === 0 && (
             <PersonalInfoForm
               defaultValues={form}
