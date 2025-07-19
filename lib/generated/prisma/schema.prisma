@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your enhanced Prisma schema file for EduVibe educational platform
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL") // MongoDB connection string in your .env
+}
+
+/// ======================================================
+/// User Auth Model
+/// ======================================================
+
+enum Role {
+  STUDENT
+  MENTOR
+}
+
+model User {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  email      String        @unique
+  password   String? // Nullable for provider-only accounts
+  role       Role
+  provider   AuthProvider? // "GOOGLE", "GITHUB", or null
+  providerId String? // Each provider's unique ID (sub, id, etc.)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  studentProfile StudentProfile?
+  mentorProfile  MentorProfile?
+  // sessions       Session[]      @relation("UserSessions")
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+  GITHUB
+  FACEBOOK
+}
+
+/// ======================================================
+/// Student Profile Section
+/// ======================================================
+
+model StudentProfile {
+  id                 String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String         @unique @db.ObjectId
+  fullName           String
+  age                Int
+  contactNumber      String
+  educationLevel     EducationLevel
+  school             String
+  subjectsOfInterest String[]
+  currentYear        Int
+
+  skillLevels    SkillLevel[]
+  learningStyle  LearningStyle
+  hasDisability  Boolean
+  disabilityDesc String?
+
+  bookedSessions Session[] @relation("StudentSession")
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum EducationLevel {
+  GRADE_9
+  ORDINARY_LEVEL
+  ADVANCED_LEVEL
+}
+
+type SkillLevel {
+  subject String
+  level   SubjectLevel
+}
+
+enum SubjectLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum LearningStyle {
+  VISUAL
+  HANDS_ON
+  THEORETICAL
+  MIXED
+}
+
+/// ======================================================
+/// Mentor Profile Schema
+/// ======================================================
+
+model MentorProfile {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String   @unique @db.ObjectId
+  fullName          String
+  age               Int
+  contactNumber     String
+  preferredLanguage Language
+  currentLocation   String
+  shortBio          String
+  professionalRole  String
+
+  subjectsToTeach        String[]
+  experienceYears        Experience
+  preferredStudentLevels StudentLevel[]
+
+  linkedIn        String
+  githubPortfolio String?
+  profilePicture  String?
+
+  bookedSessions Session[] @relation("MentorSession")
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum Language {
+  ENGLISH
+  SINHALA
+  TAMIL
+  OTHER
+}
+
+enum Experience {
+  NONE
+  YEARS_1_3
+  YEARS_3_5
+  YEARS_5_PLUS
+}
+
+enum StudentLevel {
+  GRADE_3_5
+  GRADE_6_9
+  GRADE_10_11
+  ADVANCED_LEVEL
+}
+
+/// ======================================================
+/// Mentor Session Booking Schema
+/// ======================================================
+
+model Session {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String @db.ObjectId
+  mentorId  String @db.ObjectId
+  // bookedByUserId String         @db.ObjectId? // Optional cross-reference
+
+  mentor  MentorProfile  @relation("MentorSession", fields: [mentorId], references: [id])
+  student StudentProfile @relation("StudentSession", fields: [studentId], references: [id])
+  // bookedByUser   User?          @relation("UserSessions", fields: [bookedByUserId], references: [id])
+
+  date     DateTime
+  duration Int // Always 2 hours by default
+  status   BookingStatus
+  bankSlip String?
+  bookedAt DateTime      @default(now())
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELED
+}

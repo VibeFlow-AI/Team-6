@@ -4,21 +4,233 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// This is your enhanced Prisma schema file for EduVibe educational platform
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL") // MongoDB connection string in your .env
 }
 
-model Sample {
-  id String @id @default(cuid())
+/// ======================================================
+/// User Auth Model
+/// ======================================================
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Role {
+  STUDENT
+  MENTOR
+}
 
-  @@map("samples")
+model User {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  email          String         @unique
+  password       String?        // Nullable for provider-only accounts
+  role           Role?
+  provider       AuthProvider?  // "GOOGLE", "GITHUB", or null
+  providerId     String?        // Each provider's unique ID (sub, id, etc.)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  studentProfile StudentProfile?
+  mentorProfile  MentorProfile?
+  // sessions       Session[]      @relation("UserSessions")
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+  GITHUB
+  FACEBOOK
+}
+
+/// ======================================================
+/// Student Profile Section
+/// ======================================================
+
+model StudentProfile {
+  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String      @unique @db.ObjectId
+  fullName           String
+  age                Int
+  contactNumber      String
+  educationLevel     EducationLevel
+  school             String
+  subjectsOfInterest String[]
+  currentYear        Int
+
+  skillLevels        SkillLevel[]
+  learningStyle      LearningStyle
+  hasDisability      Boolean
+  disabilityDesc     String?
+
+  bookings          SessionBooking[]
+  user               User        @relation(fields: [userId], references: [id])
+}
+
+enum EducationLevel {
+  GRADE_9
+  ORDINARY_LEVEL
+  ADVANCED_LEVEL
+}
+
+type SkillLevel {
+  subject     String
+  level       SubjectLevel
+}
+
+enum SubjectLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum LearningStyle {
+  VISUAL
+  HANDS_ON
+  THEORETICAL
+  MIXED
+}
+
+/// ======================================================
+/// Mentor Profile Schema
+/// ======================================================
+
+model MentorProfile {
+  id                     String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId                 String          @unique @db.ObjectId
+  fullName               String
+  age                    Int
+  contactNumber          String
+  preferredLanguage      Language
+  currentLocation        String
+  shortBio               String
+  professionalRole       String
+
+  subjectsToTeach        String[]
+  experienceYears        Experience
+  preferredStudentLevels StudentLevel[]
+
+  linkedIn               String
+  githubPortfolio        String?
+  profilePicture         String?
+
+  sessionSchedules       SessionSchedule[]
+  user                   User            @relation(fields: [userId], references: [id])
+}
+
+enum Language {
+  ENGLISH
+  SINHALA
+  TAMIL
+  OTHER
+}
+
+enum Experience {
+  NONE
+  YEARS_1_3
+  YEARS_3_5
+  YEARS_5_PLUS
+}
+
+enum StudentLevel {
+  GRADE_3_5
+  GRADE_6_9
+  GRADE_10_11
+  ADVANCED_LEVEL
+}
+
+/// ======================================================
+/// Mentor Session Booking Schema
+/// ======================================================
+
+model SessionSchedule {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  mentorId    String        @db.ObjectId
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id])
+  title       String
+  description String?
+  duration    Int           // Duration in minutes
+  price       Float
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  timeSlots   TimeSlot[]
+}
+
+model TimeSlot {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  sessionScheduleId String          @db.ObjectId
+  sessionSchedule   SessionSchedule @relation(fields: [sessionScheduleId], references: [id])
+  startTime         DateTime
+  endTime           DateTime
+  isBooked         Boolean         @default(false)
+  
+  booking          SessionBooking?
+}
+
+model SessionBooking {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  timeSlotId      String          @unique @db.ObjectId
+  timeSlot        TimeSlot        @relation(fields: [timeSlotId], references: [id])
+  studentId       String          @db.ObjectId
+  student         StudentProfile  @relation(fields: [studentId], references: [id])
+  status          BookingStatus   @default(PENDING_PAYMENT)
+  meetingLink     String?
+  paymentStatus   PaymentStatus   @default(PENDING)
+  paymentId       String?         @unique @db.ObjectId
+  payment         Payment?        @relation(fields: [paymentId], references: [id])
+  mentorNotes     String?         // Mentor's notes/feedback
+  rejectionReason String?         // If mentor rejects the booking
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Payment {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  amount          Float
+  currency        String          @default("LKR")
+  status          PaymentStatus
+  paymentMethod   PaymentMethod
+  transactionId   String?
+  bankSlipImage   String?        // URL to uploaded bank slip image
+  verifiedAt      DateTime?      // When the payment was verified
+  verifiedBy      String?        @db.ObjectId // Admin/Mentor who verified the payment
+  booking         SessionBooking?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  PENDING_MENTOR_APPROVAL
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  ONLINE_PAYMENT
+}
+
+// Add compatibility score type
+type CompatibilityScore {
+  score        Float
+  matchReason  String
 }
