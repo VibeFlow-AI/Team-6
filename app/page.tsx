@@ -288,7 +288,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white px-4 lg:px-6 py-12">
+      {/* <footer className="bg-gray-900 text-white px-4 lg:px-6 py-12">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
@@ -386,7 +386,7 @@ export default function Home() {
             <p>&copy; 2024 EduVibe. All rights reserved.</p>
           </div>
         </div>
-      </footer>
+      </footer> */}
       {isActiveGetStarted && (<RoleSelectionModal setIsActiveGetStarted={setIsActiveGetStarted} isActiveGetStarted={isActiveGetStarted} />)}
     </div>
   )
