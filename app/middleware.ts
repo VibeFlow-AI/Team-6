@@ -7,8 +7,17 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/", "/login", "/register", "/role-selection"];
+  const publicRoutes = ["/", "/login", "/register"];
   if (publicRoutes.includes(pathname)) {
+    // If user is already authenticated, redirect to their dashboard
+    if (token) {
+      const role = token.role as "STUDENT" | "MENTOR";
+      if (role === "STUDENT") {
+        return NextResponse.redirect(new URL("/student/explore", request.url));
+      } else if (role === "MENTOR") {
+        return NextResponse.redirect(new URL("/mentor/dashboard", request.url));
+      }
+    }
     return NextResponse.next();
   }
 
@@ -20,16 +29,21 @@ export async function middleware(request: NextRequest) {
   }
 
   // Role-based route protection
-  const role = token.role as "STUDENT" | "MENTOR";
+  const role = token.role as "STUDENT" | "MENTOR" | null;
+
+  // If user has no role, redirect to role selection page
+  if (!role && pathname !== "/role-selection") {
+    return NextResponse.redirect(new URL("/role-selection", request.url));
+  }
   
   // Student routes protection
   if (pathname.startsWith("/student") && role !== "STUDENT") {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Mentor routes protection
   if (pathname.startsWith("/mentor") && role !== "MENTOR") {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [role, setRole] = useState<"STUDENT" | "MENTOR">("STUDENT");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +28,7 @@ export default function RegisterPage() {
     setLoading(true);
     const res = await fetch("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, role }),
       headers: { "Content-Type": "application/json" },
     });
     setLoading(false);
@@ -79,6 +80,21 @@ export default function RegisterPage() {
             onChange={e => setConfirm(e.target.value)}
             disabled={loading}
           />
+          <div className="space-y-2">
+            <label htmlFor="role" className="text-sm font-medium text-gray-700">
+              I am a...
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={e => setRole(e.target.value as "STUDENT" | "MENTOR")}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              disabled={loading}
+            >
+              <option value="STUDENT">Student</option>
+              <option value="MENTOR">Mentor</option>
+            </select>
+          </div>
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <Button className="w-full" type="submit" disabled={loading}>
             {loading ? "Registering..." : "Register"}
