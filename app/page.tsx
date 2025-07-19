@@ -79,10 +79,10 @@ export default function Home() {
       <section className="px-4 lg:px-6 py-16 bg-gray-50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">What's in it for Students?</h2>
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto">
-              EduVibe is a student-mentor platform designed to personalize learning journeys. It connects students with
-              mentors who offer guidance, support, and practical industry insights.
+            <h2 className="text-3xl lg:text-5xl font-medium text-gray-900 mb-4">What's in it for Students?</h2>
+            <p className="text-lg text-black max-w-2xl mx-auto">
+              EduVibe is a student-mentor platform designed to personalize learning <br></br> journeys. 
+              It connects students with mentors who offer guidance,<br></br> support, and practical industry insights.
             </p>
           </div>
 
@@ -98,8 +98,8 @@ export default function Home() {
       <section className="px-4 lg:px-6 py-16 bg-gradient-to-b from-purple-50 to-blue-50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Session Highlights – Trending Now</h2>
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto">
+            <h2 className="text-3xl lg:text-5xl font-medium text-gray-900 mb-4">Session Highlights – Trending Now</h2>
+            <p className="text-lg text-black max-w-2xl mx-auto">
               Join the sessions students are raving about. These expert-led, high-impact sessions are designed to help
               you unlock your full potential whether you're polishing your resume, mapping out your career path, or
               getting ready to ace technical interviews.
@@ -279,7 +279,7 @@ export default function Home() {
           <div className="text-center">
             <Button
               variant="outline"
-              className="px-8 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+              className="px-8 py-2 border-black text-black hover:bg-gray-50 bg-transparent"
             >
               Load More Sessions
             </Button>
