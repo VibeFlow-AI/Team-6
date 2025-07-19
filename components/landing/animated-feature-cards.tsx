@@ -116,7 +116,7 @@ export function AnimatedFeatureCards() {
 
             {/* Active card border glow */}
             {isActive && (
-              <div className="absolute inset-0 rounded-2xl border-2 border-purple-400/50 pointer-events-none" />
+              <div className="absolute inset-0 rounded-2xl border-2  pointer-events-none" />
             )}
           </div>
         )
